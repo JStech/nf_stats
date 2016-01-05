@@ -79,6 +79,7 @@ func main() {
 		tot_sz += uint64(record.Size)
 		if record.Size == 0 {
 			z += 1
+			//continue
 		}
 		if record.IPhash&1 > 0 {
 			dns += 1
@@ -195,7 +196,6 @@ func main() {
 	}
 	fmt.Println("Est: ", float64(reprate)/(float64(total_packets)*float64(total_packets-1)))
 
-	// TODO: why isn't this working? or is it?
 	fmt.Println("\nTable 5")
 	fmt.Println("r\tEstimate\tActual")
 	for i := uint32(0); i < 5; i++ {
@@ -204,13 +204,13 @@ func main() {
 		act := uint32(0)
 		for IPhash, p := range smp_pkts {
 			if p == i+1 {
-				est += smp_byts[IPhash]
+				est += smp_byts[IPhash] * sampling_rate
 				act += uns_byts[IPhash]
 			}
 		}
 		fmt.Printf("%f\t%f\n",
-			float32(est*sampling_rate)/float32(1000*len(smp_byts)),
-			float32(act*sampling_rate)/float32(1000*len(smp_byts)))
+			float32(est)/float32(1000*count(smp_pkts, i+1)),
+			float32(act)/float32(1000*count(smp_pkts, i+1)))
 	}
 
 	fmt.Println("\nTable 6")
