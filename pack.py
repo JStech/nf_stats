@@ -33,7 +33,7 @@ with open("data/packed.bin", "wb") as outfile:
           iphash += 1
           dns += 1
         if tu == b"U":
-          iphash += 3
+          iphash += 2
           udp += 1
         t += 1
         tot_sz += sz

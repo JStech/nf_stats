@@ -32,6 +32,12 @@ func sum(m map[uint32]uint32) uint32 {
 	return s
 }
 
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	total_packets := uint32(37607469)
 	sampling_rate := uint32(100)
@@ -54,14 +60,14 @@ func main() {
 		sampled[uint32(rand.Intn(int(total_packets)))] = true
 	}
 
-	t := uint32(0)
-	z := 0
-	tot_sz := uint32(0)
+	var t uint32
+	var z uint32
+	var tot_sz uint64
+	var dns uint32
+	var udp uint32
 
 	infile, err := os.Open("data/packed.bin")
-	if err != nil {
-		log.Fatal(err)
-	}
+	check(err)
 
 	var buf_pkt uint32
 	for i := uint32(0); ; i++ {
@@ -70,9 +76,15 @@ func main() {
 		}
 
 		t += 1
-		tot_sz += record.Size
+		tot_sz += uint64(record.Size)
 		if record.Size == 0 {
 			z += 1
+		}
+		if record.IPhash&1 > 0 {
+			dns += 1
+		}
+		if record.IPhash&2 > 0 {
+			udp += 1
 		}
 
 		if i%uint32(sampling_rate) == 0 {
@@ -100,10 +112,10 @@ func main() {
 	}
 
 	if err != io.EOF {
-		log.Fatal(err)
+		check(err)
 	}
 
-	fmt.Println(t, z, tot_sz)
+	fmt.Println(t, z, tot_sz, dns, udp)
 	fmt.Printf("Unsampled      Flows: %10d  Packets %10d  Bytes %10d\n", len(uns_pkts), sum(uns_pkts), sum(uns_byts))
 	fmt.Printf("Simple         Flows: %10d  Packets %10d  Bytes %10d\n", len(smp_pkts), sum(smp_pkts), sum(smp_byts))
 	fmt.Printf("Deterministic  Flows: %10d  Packets %10d  Bytes %10d\n", len(det_pkts), sum(det_pkts), sum(det_byts))
@@ -183,6 +195,7 @@ func main() {
 	}
 	fmt.Println("Est: ", float64(reprate)/(float64(total_packets)*float64(total_packets-1)))
 
+	// TODO: why isn't this working? or is it?
 	fmt.Println("\nTable 5")
 	fmt.Println("r\tEstimate\tActual")
 	for i := uint32(0); i < 5; i++ {
@@ -200,4 +213,52 @@ func main() {
 			float32(act*sampling_rate)/float32(1000*len(smp_byts)))
 	}
 
+	fmt.Println("\nTable 6")
+	fmt.Println("k\tTrue sum\tTrue mean\tProxy sum\tProxy mean")
+	for k := uint32(0); k < 5; k++ {
+		fmt.Printf("%d\t", k+1)
+		tsum := uint32(0)
+		psum := uint32(0)
+		for IPhash, p := range smp_pkts {
+			if IPhash&2 > 0 || p != k+1 {
+				continue
+			}
+			tsum += uns_byts[IPhash]
+			psum += smp_byts[IPhash]
+		}
+		fmt.Printf("%d\t%f\t%d\t%f\n", tsum, float32(tsum)/float32(len(smp_pkts)),
+			psum, float32(psum)/float32(len(smp_pkts)))
+	}
+
+	fmt.Println("\nFigure 1 written to file")
+	fig1, err := os.Create("fig1.txt")
+	defer fig1.Close()
+	check(err)
+	for IPhash := range smp_pkts {
+		fmt.Fprintf(fig1, "%d %d\n", smp_pkts[IPhash], smp_byts[IPhash])
+	}
+
+	fmt.Println("\nFigure 2 written to files")
+	fig2a, err := os.Create("fig2a.txt")
+	defer fig2a.Close()
+	fig2b, err := os.Create("fig2b.txt")
+	defer fig2b.Close()
+	for IPhash, p := range smp_pkts {
+		if p == 1 && uns_pkts[IPhash] == 5 {
+			fmt.Fprintf(fig2a, "%f\n", float32(uns_byts[IPhash])/5.)
+		} else if p == 1 && uns_pkts[IPhash] == 25 {
+			fmt.Fprintf(fig2b, "%f\n", float32(uns_byts[IPhash])/25.)
+		}
+	}
+
+	fmt.Println("\nDNS")
+
+	single_dns := 0
+	for IPhash, p := range uns_pkts {
+		if p == 1 && (IPhash&1 > 0) {
+			single_dns++
+		}
+	}
+	fmt.Printf("%d flows, %d single-packet flows, %d DNS flows, %d single-packet DNS flows\n",
+		len(uns_pkts), count(uns_pkts, 1), dns, single_dns)
 }
