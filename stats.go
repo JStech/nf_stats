@@ -15,7 +15,7 @@ type Record struct {
 }
 
 func count(m map[uint32]uint32, t uint32) uint32 {
-	c := uint32(0)
+	var c uint32
 	for _, v := range m {
 		if v == t {
 			c++
@@ -25,7 +25,7 @@ func count(m map[uint32]uint32, t uint32) uint32 {
 }
 
 func sum(m map[uint32]uint32) uint32 {
-	s := uint32(0)
+	var s uint32
 	for _, v := range m {
 		s += v
 	}
@@ -137,7 +137,7 @@ func main() {
 	fmt.Println("r\tActual mean\tNew estimate")
 	for i := uint32(0); i < 19; i++ {
 		fmt.Printf("%d\t", i+1)
-		t = uint32(0)
+		t = 0
 		c := 0
 		for IPhash, v := range smp_pkts {
 			if v != i+1 {
@@ -154,7 +154,7 @@ func main() {
 	// TODO: why isn't this working?
 	fmt.Println("\nTable 4")
 	fmt.Println("Method\tEstimate\tActual")
-	pkts := uint32(0)
+	var pkts uint32
 	for IPhash := range smp_pkts {
 		pkts += uns_pkts[IPhash]
 	}
@@ -185,7 +185,7 @@ func main() {
 
 	// TODO: why isn't this working?
 	fmt.Println("\nRepeat rate")
-	reprate := uint32(0)
+	var reprate uint32
 	for _, v := range uns_pkts {
 		reprate += v * v
 	}
@@ -200,8 +200,8 @@ func main() {
 	fmt.Println("r\tEstimate\tActual")
 	for i := uint32(0); i < 5; i++ {
 		fmt.Printf("%d\t", i+1)
-		est := uint32(0)
-		act := uint32(0)
+		var est uint32
+		var act uint32
 		for IPhash, p := range smp_pkts {
 			if p == i+1 {
 				est += smp_byts[IPhash] * sampling_rate
@@ -217,8 +217,8 @@ func main() {
 	fmt.Println("k\tTrue sum\tTrue mean\tProxy sum\tProxy mean")
 	for k := uint32(0); k < 5; k++ {
 		fmt.Printf("%d\t", k+1)
-		tsum := uint32(0)
-		psum := uint32(0)
+		var tsum uint32
+		var psum uint32
 		for IPhash, p := range smp_pkts {
 			if IPhash&2 > 0 || p != k+1 {
 				continue
