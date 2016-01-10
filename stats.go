@@ -214,7 +214,7 @@ func main() {
 
 	fmt.Println("\nTable 6")
 	fmt.Println("k\tTrue sum\tTrue mean\tProxy sum\tProxy mean")
-	for k := uint32(0); k < 5; k++ {
+	for k := uint32(0); k < 6; k++ {
 		fmt.Printf("%d\t", k+1)
 		var tsum uint32
 		var psum uint32
@@ -231,16 +231,18 @@ func main() {
 
 	fmt.Println("\nFigure 1 written to file")
 	fig1, err := os.Create("fig1.txt")
-	defer fig1.Close()
 	check(err)
+	defer fig1.Close()
 	for IPhash := range smp_pkts {
 		fmt.Fprintf(fig1, "%d %d\n", smp_pkts[IPhash], smp_byts[IPhash])
 	}
 
 	fmt.Println("\nFigure 2 written to files")
 	fig2a, err := os.Create("fig2a.txt")
+	check(err)
 	defer fig2a.Close()
 	fig2b, err := os.Create("fig2b.txt")
+	check(err)
 	defer fig2b.Close()
 	for IPhash, p := range smp_pkts {
 		if p == 1 && uns_pkts[IPhash] == 5 {
@@ -252,12 +254,21 @@ func main() {
 
 	fmt.Println("\nDNS")
 
-	single_dns := 0
+	single_dns := uint32(0)
 	for IPhash, p := range uns_pkts {
 		if p == 1 && (IPhash&1 > 0) {
 			single_dns++
 		}
 	}
+	single := count(uns_pkts, 1)
 	fmt.Printf("%d flows, %d single-packet flows, %d DNS flows, %d single-packet DNS flows\n",
-		len(uns_pkts), count(uns_pkts, 1), dns, single_dns)
+		len(uns_pkts), single, dns, single_dns)
+
+	fmt.Println("\nFigure 3 written to file")
+	fig3, err := os.Create("fig3.txt")
+	check(err)
+	defer fig3.Close()
+	fmt.Fprintf(fig3, "%d %d\n%d %d\n",
+		len(uns_pkts)-int(single)-int(dns)+int(single_dns), dns-single_dns,
+		single-single_dns, single_dns)
 }
