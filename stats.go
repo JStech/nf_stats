@@ -159,42 +159,41 @@ func main() {
 		pkts += uns_pkts[IPhash]
 	}
 	fmt.Printf("Simple\t%f\t%f\n",
-		1-float32(count(smp_pkts, 1))/float32(len(smp_pkts)),
+		float32(count(smp_pkts, 1))/float32(sum(smp_pkts)),
 		1-float32(pkts)/float32(total_packets))
 	pkts = 0
 	for IPhash := range buf_pkts {
 		pkts += uns_pkts[IPhash]
 	}
 	fmt.Printf("Buffered\t%f\t%f\n",
-		1-float32(count(buf_pkts, 1))/float32(len(buf_pkts)),
+		float32(count(buf_pkts, 1))/float32(sum(buf_pkts)),
 		1-float32(pkts)/float32(total_packets))
 	pkts = 0
 	for IPhash := range det_pkts {
 		pkts += uns_pkts[IPhash]
 	}
 	fmt.Printf("Deterministic\t%f\t%f\n",
-		1-float32(count(det_pkts, 1))/float32(len(det_pkts)),
+		float32(count(det_pkts, 1))/float32(sum(det_pkts)),
 		1-float32(pkts)/float32(total_packets))
 	pkts = 0
 	for IPhash := range ind_pkts {
 		pkts += uns_pkts[IPhash]
 	}
 	fmt.Printf("Independent\t%f\t%f\n",
-		1-float32(count(det_pkts, 1))/float32(len(det_pkts)),
+		float32(count(det_pkts, 1))/float32(sum(det_pkts)),
 		1-float32(pkts)/float32(total_packets))
 
-	// TODO: why isn't this working?
 	fmt.Println("\nRepeat rate")
-	var reprate uint32
+	var reprate uint64
 	for _, v := range uns_pkts {
-		reprate += v * v
+		reprate += uint64(v) * uint64(v)
 	}
-	fmt.Println("True:", float64(reprate)/(float64(total_packets)*float64(total_packets)))
+	fmt.Println("True:", float64(reprate)/float64(total_packets)/float64(total_packets))
 	reprate = 0
-	for i := uint32(0); i < 1000; i++ {
-		reprate += (i + 1) * i * count(smp_pkts, i+1)
+	for i := uint32(0); i < 10000; i++ {
+		reprate += uint64((i + 1) * i * count(smp_pkts, i+1))
 	}
-	fmt.Println("Est: ", float64(reprate)/(float64(total_packets)*float64(total_packets-1)))
+	fmt.Println("Est: ", float64(reprate)/(float64(sum(smp_pkts))*float64(sum(smp_pkts)-1)))
 
 	fmt.Println("\nTable 5")
 	fmt.Println("r\tEstimate\tActual")
