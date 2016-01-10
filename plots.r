@@ -1,5 +1,5 @@
 # FIG 1
-png(file = 'fig1.png', bg = 'transparent')
+png(file = 'paper/fig1.png', bg = 'transparent')
 fig1 = read.table('fig1.txt')
 p = fig1[[1]]
 b = fig1[[2]]
@@ -10,7 +10,7 @@ title(main="Flows with 1 packet sampled, packets vs. bytes")
 dev.off()
 
 # FIG 2
-png(file = 'fig2.png', bg='transparent', width=960, height=480)
+png(file = 'paper/fig2.png', bg='transparent', width=960, height=480)
 par(mfrow=c(1,2))
 fig2a = read.table('fig2a.txt')
 hist(fig2a[[1]], breaks=seq(0,1400,50),
@@ -23,7 +23,7 @@ hist(fig2b[[1]], breaks=seq(0,1400,50),
 dev.off()
 
 # FIG 3
-png(file = 'fig3.png', bg='transparent')
+png(file = 'paper/fig3.png', bg='transparent')
 fig3 = read.table('fig3.txt')
 rownames(fig3) <- c('FALSE', 'TRUE')
 colnames(fig3) <- c('FALSE', 'TRUE')
