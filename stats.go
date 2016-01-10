@@ -271,4 +271,22 @@ func main() {
 	fmt.Fprintf(fig3, "%d %d\n%d %d\n",
 		len(uns_pkts)-int(single)-int(dns)+int(single_dns), dns-single_dns,
 		single-single_dns, single_dns)
+
+	var prx_sum uint32
+	var uns_sum uint32
+	var rat_sum float32
+	var c uint32
+	fmt.Println("\nMeans of ratios, ratio of means")
+	for IPhash, p := range smp_pkts {
+		if p > 1 || IPhash&2 > 0 || smp_byts[IPhash] == 0 {
+			continue
+		}
+		c++
+		prx_sum += smp_byts[IPhash]
+		uns_sum += uns_byts[IPhash]
+		rat_sum += float32(uns_byts[IPhash]) / float32(smp_byts[IPhash])
+	}
+	fmt.Printf("Mean of ratios, %f; Ratio of means, %f\n", c,
+		rat_sum/float32(c), float32(uns_sum)/float32(prx_sum))
+
 }
