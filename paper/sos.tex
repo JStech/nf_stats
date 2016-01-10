@@ -546,8 +546,8 @@ is intended only as a suggestive heuristic, not an actual derivation.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[scale=0.5]{fig1.png}
-\caption{Estimator for flow size, in bytes, of TCP flows}
-\label{size_est}
+\caption{Scatterplot of bytes versus packets for flows with one packet sampled}
+\label{pb_plot}
 \end{center}
 \end{figure}
 
@@ -558,7 +558,7 @@ The plot in Figure~\ref{pb_plot} contains two distinctive features:
   \item a ``feast-or-famine'' effect often present that is evident on the
     right.
 \end{enumerate}
-Figure~\ref{pkg_size_dist} shows the distributions of average packet sizes for flows which
+Figure~\ref{pkt_size_dist} shows the distributions of average packet sizes for flows which
 had one packet sampled in the two cases where the original flow had 5 or 25
 packets. Even accounting for sampling fluctations, it is apparent the two
 distributions are different: while the 25-packet flows show some feast-or-famine
